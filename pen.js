@@ -1,4 +1,11 @@
 /***
+ * Ручка-трансформер
+ * created by Bolkhovskiy Alexey
+ * 10.09.2015
+ */
+
+
+/***
  * Ручка
  * @param color - цвет задается как в css
  * @constructor
@@ -109,22 +116,80 @@ MechanicalPencil.prototype.eraseWrittenText = function (start, stop) {
     return this;
 };
 
+/***
+ * авторучка с множеством паст (MultiColor)
+ * @param colorArray - масив цветов ["red", "#000000", "green"]
+ * @constructor
+ */
+function MultiColorPen(colorArray) {
+    MechanicalPencil.apply(this, arguments);
+    this.colorArray = colorArray;
+    this.inkValueArray = [100];
+    this.currentColor = 0;
+    this.color = this.colorArray[this.currentColor];
+
+}
+
+MultiColorPen.prototype = Object.create(MechanicalPencil.prototype);
+MultiColorPen.prototype.constructor = MultiColorPen;
+
+MechanicalPencil.prototype.erasable = false;
+MultiColorPen.prototype.switchColor = function () {
+    var tempNum = this.currentColor;
+    if (this.colorArray.length >= tempNum + 1) {
+        tempNum++;
+    } else {
+        tempNum = 0;
+    }
+    if (this.inkValueArray[tmpNum] === undefined) {
+        this.inkValueArray.push(100);
+    }
+    this.inkValueArray[this.currentColor]=this.inkValue;
+    this.currentColor = tempNum;
+    this.color = this.colorArray[this.currentColor];
+    this.inkValue = this.inkValueArray[this.currentColor];
+    colorfulConsole(" " + this.color + " color selected",this.color);
+};
+
+
+
 //========================Testing========================
 
 console.log("             Pen             ")
-console.log("\n=============================");
+console.log("\n========================");
 var pen = new Pen("red");
 testPen(pen, 14);
 pen.rechargeInk();
 testPen(pen, 10);
 
 console.log("      AutomaticPen             ")
-console.log("\n=============================");
+console.log("\n========================");
 
 var ap = new AutomaticPen("blue");
-console.log("Is Pen a prototype of AutomaticPen? "+Pen.prototype.isPrototypeOf(ap));
+console.log("Hmm...Is Pen a prototype of AutomaticPen? "+Pen.prototype.isPrototypeOf(ap));
 testPen(ap, 11);
 ap.turn();
 testPen(ap, 10);
 ap.rechargeInk();
 testPen(ap, 2);
+
+console.log("\n=======MultiColorPen=======");
+
+var mcp = new MultiColorPen(["red", "blue", "green"]);
+mcp.writeText("Hello mad world! ^.^");
+testSupply(mcp, 10);
+mcp.turn();
+testSupply(mcp, 10);
+mcp.switchColor();
+testSupply(mcp, 10);
+mcp.switchColor();
+testSupply(mcp, 10);
+mcp.rechargeInk();
+mcp.switchColor();
+mcp.switchColor();
+mcp.switchColor();
+testSupply(mcp, 5);
+mcp.switchColor();
+mcp.rechargeInk();
+testSupply(mcp, 3);
+mcp.erasWrittenText(5, 10);
