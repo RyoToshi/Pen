@@ -56,8 +56,60 @@ AutomaticPen.prototype.writeText = function (text) {
     return this;
 };
 
+/***
+ * Механический карандаш
+ * @param color - цвет задается как в css
+ * @constructor
+ */
 
+function MechanicalPencil(color) {
+    AutomaticPen.apply(this, arguments);
+    this.writtenText = "";
+}
+MechanicalPencil.prototype = Object.create(AutomaticPen.prototype);
+MechanicalPencil.prototype.constructor = MechanicalPencil;
 
+MechanicalPencil.prototype.eraseble = true;
+MechanicalPencil.prototype.writeText = function (text) {
+    var oldInkLevel = this.inkValue;
+    AutomaticPen.prototype.writeText.apply(this, arguments);
+    var difference = oldInkLevel - this.inkValue;
+
+    if (difference !== 0) {
+        if (text.length > difference) {
+            this.writtenText = text.slice.apply(0, difference);
+        } else {
+            this.writtenText = text;
+        }
+    }
+    // return this;
+};
+/***
+ * Удаляет промежутки написаного текста (ластик на карандаше)
+ * @param start - начинает стирать этого символа
+ * @param stop - заканчивает стирать
+ */
+
+MechanicalPencil.prototype.eraseWrittenText = function (start, stop) {
+    if (this.erasable) {
+        if (this.writtenText.length > 0 && (stop < this.writtenText.length)) {
+            var tmp = this.writtenText;
+            var empty = " ";
+            for (var i = start; stop > i; i++) {
+                empty = empty + " ";
+            }
+            this.writtenText = tmp.substring(0, start) + empty + tmp.substring(stop + 1);
+            colorfulConsole(this.writtenText,this.color);
+        } else {
+            console.log("You must write some text, and then erase it");
+        }
+    } else {
+        console.log("You can't erase this text");
+    }
+    return this;
+};
+
+//========================Testing========================
 
 console.log("             Pen             ")
 console.log("\n=============================");
@@ -69,7 +121,7 @@ testPen(pen, 10);
 console.log("      AutomaticPen             ")
 console.log("\n=============================");
 
-var ap = new AutomaticPen("green");
+var ap = new AutomaticPen("blue");
 console.log("Is Pen a prototype of AutomaticPen? "+Pen.prototype.isPrototypeOf(ap));
 testPen(ap, 11);
 ap.turn();
